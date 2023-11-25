@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Drive PDF Viewer</title>
+    <style>
+    body, html {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        font-family: 'Arial', sans-serif;
+    }
+
+    iframe {
+        width: 100vw;
+        height: calc(100vh - 40px); /* Adjusted height for the menu bar */
+        border: 0; /* Remove iframe border */
+    }
+
+    .menu-bar {
+        background-color:#5D3FD3;
+        display: flex;
+        justify-content: space-between;
+        flex-direction: row; /* Changed to column for vertical layout */
+        align-items: center;
+        padding: 10px 20px;
+    }
+
+    .arrow {
+        cursor: pointer;
+        font-size: 70px;
+        color: white;
+        transition: opacity 0.3s ease;
+    }
+.arrow:hover {
+        opacity: 0.9;
+        background-color: green;
+    }
+    .file-list {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        overflow-x: auto;
+        margin-top: 20px;
+    }
+
+    .file-item {
+        cursor: pointer;
+        margin-bottom: 20px; /* Space below each element */
+        margin-right: 10px; /* Space to the right of each element */
+        color: white;
+        font-size: 18px;
+        font-weight: bold;
+        padding: 10px;
+        border: 1px solid white;
+        border-radius: 10px;
+        transition: 0.3s ease;
+    }
+
+    .file-item:hover {
+        opacity: 0.8;
+        background-color: orange;
+    }
+
+    .file-item-vertical {
+        cursor: pointer;
+        margin-bottom: 20px;
+        color: #3498db;
+        font-size: 18px;
+        font-weight: bold;
+        text-decoration: none;
+        transition: opacity 0.3s ease;
+    }
+
+    .file-item-vertical:hover {
+        opacity: 0.8;
+        background-color: orange;
+    }
+</style>
+
+</head>
+<body>
+    <div class="menu-bar">
+        <div class="arrow" id="left-arrow">&#9666;</div>
+        <div id="file-list" class="file-list"></div>
+        <div class="arrow" id="right-arrow">&#9656;</div>
+    </div>
+    <div id="preview-container"></div>
+
+    <script>
+        const fileIds = [
+           '1B0e6TFVGIRBTCI_v6nKaAtYC5aMT7Cwa',
+            '1JU1ox7lULgDS-mD1ccgNfdctet6xqtwx',
+            '1C4lGa1M9RgriZJQpEmxXHmSBD9F3vPLv',
+            '1ldP6cQi8Rml1DGv0LbhtxdJwIvd0wWb2',
+            '17WlYtTeXGW-_Ia6d2Idn4gkHwXkk0KEf',
+            '1jrGc4xtX2V13mAXl2anOI-pGhlo2T-Ga',
+            '1QUlDcnQGFNXu2TT5J1JiAP0i0dITPa_b',
+            '1Lzhz5XNC6QwTk5um3cnNsGOXObNVLTok',
+            '1jyzvAlBsCITs75VLmN9Mdhikl_s4PPIo',
+            '1i0LVh-7q03lPe9YzATo4XYFjJO6XVa0g',
+            '1Xnvi297Md1bMauDJVlN3J7lGuIy_754j',
+            '1XlTfLmV7R1uNJokUN2avtu1txz8uSq02',
+            '1oJttBJmRwKuDytBzG33aBB36Q6POarTM',
+            '1bJSsAkzUKFpQXCRvFBDbiLf1jddoeJVr',
+            '14HGtvaodlyaRfawr0x028xhnaDX7NZYq',
+            '1vC1h6m_3VJGZN_XiEjqa_U4__-8h_oq9',
+            '1wm6XJn6PPMYSznbR7CgzPXNuecGR4FaD',
+            '1ekn-J1rdOh3D6ZDOTvfrGf_d8dBo1fiR',
+            '1kdJPeOAdEu7amYVo1HnVYpnIcVgVaeeS',
+            // Add more file IDs as needed
+        ];
+
+        let currentIndex = 0;
+        const itemsPerPage = 6; // Adjust the number of items displayed per page
+
+        // Function to load the PDF preview
+        function loadPreview(fileId) {
+            const previewContainer = document.getElementById('preview-container');
+            previewContainer.innerHTML = `<iframe src="https://drive.google.com/file/d/${fileId}/preview?embedded=true"></iframe>`;
+        }
+
+        // Function to create file list and handle clicks
+        function createFileList(fileIds) {
+            const fileListContainer = document.getElementById('file-list');
+
+            fileIds.forEach((fileId, index) => {
+                const fileItem = document.createElement('div');
+                fileItem.classList.add('file-item', 'file-item-vertical');
+                fileItem.textContent = `File ${index + 1}`;
+                fileItem.addEventListener('click', () => loadPreview(fileId));
+                fileListContainer.appendChild(fileItem);
+            });
+        }
+
+        // Function to update the file list based on the current index
+        function updateFileList() {
+            const fileListContainer = document.getElementById('file-list');
+            fileListContainer.innerHTML = ''; // Clear existing items
+
+            const start = currentIndex;
+            const end = Math.min(currentIndex + itemsPerPage, fileIds.length);
+
+            for (let i = start; i < end; i++) {
+                const fileId = fileIds[i];
+                const fileItem = document.createElement('div');
+                fileItem.classList.add('file-item');
+                fileItem.textContent = `File ${i + 1}`;
+                fileItem.addEventListener('click', () => loadPreview(fileId));
+                fileListContainer.appendChild(fileItem);
+            }
+        }
+
+        // Load the file list when the page loads
+        window.onload = function() {
+            createFileList(fileIds);
+            updateFileList();
+
+            // Add event listeners for left and right arrows
+            const leftArrow = document.getElementById('left-arrow');
+            const rightArrow = document.getElementById('right-arrow');
+
+            leftArrow.addEventListener('click', () => {
+                if (currentIndex > 0) {
+                    currentIndex -= itemsPerPage;
+                    updateFileList();
+                }
+            });
+
+            rightArrow.addEventListener('click', () => {
+                if (currentIndex + itemsPerPage < fileIds.length) {
+                    currentIndex += itemsPerPage;
+                    updateFileList();
+                }
+            });
+        };
+    </script>
+</body>
+</html>
